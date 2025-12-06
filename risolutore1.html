@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risolutore di problemi di fisica</title>
+    <style>
+        :root {
+            --primary-bg: #3f7a4e;
+            --secondary-bg: #31443d;
+            --text-color: #24b16a;
+            --accent-color: #73d6ae;
+            --input-bg: #0f5020;
+            --border-color: #045b0d;
+            --success-color: #a6e3a1;
+            --error-color: #1dbb5a;
+            --header-color: #74d25d;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+
+            background-color: var(--primary-bg); /* Colore fallback se l'immagine non carica */
+            background-image: url('mate.jpg'); /* Immagine di sfondo */
+            background-attachment: fixed; /* L'immagine non scorre */
+            background-repeat: repeat; /* Ripetizione dell'immagine */
+            background-size: auto; /* Dimensione originale */
+            opacity: 1; /* Assicura che l'opacità sia standard per il body */
+        }
+
+        main {
+            width: 100%;
+            max-width: 800px;
+
+            background-color: #3f7a4e; 
+            padding: 2rem;
+            border-radius: 8px;
+            z-index: 10;
+            position: relative;
+        }
+
+        h1, h2 {
+            color: var(--header-color);
+            text-align: center;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        #main-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        #main-menu li {
+            background-color: var(--secondary-bg);
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            border-left: 5px solid var(--accent-color);
+        }
+
+        #main-menu li:hover {
+            background-color: var(--border-color);
+            transform: translateX(5px);
+        }
+        
+        #main-menu .category-title {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .solver-section {
+            display: none;
+            background-color: var(--secondary-bg);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        input[type="number"], input[type="text"], select {
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        
+        input::placeholder {
+            color: #7f849c;
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: var(--primary-bg);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        button:hover {
+            background-color: #b4befe;
+        }
+
+        .back-button {
+            background-color: var(--border-color);
+        }
+        
+        .back-button:hover {
+            background-color: #6c7086;
+        }
+
+        details {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            margin-bottom: 2rem;
+        }
+
+        summary {
+            padding: 15px;
+            cursor: pointer;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .explanation-content {
+            padding: 0 15px 15px 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .explanation-content code {
+            font-family: "Courier New", Courier, monospace;
+            background-color: var(--primary-bg);
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 1.1em;
+        }
+
+        .results {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: var(--primary-bg);
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: "Courier New", Courier, monospace;
+            line-height: 1.6;
+            color: var(--success-color);
+        }
+        
+        .results-title {
+            color: var(--success-color);
+            margin:0;
+            padding:0;
+            margin-bottom: 1rem;
+        }
+        
+        .info-message {
+            color: #f9e2af; /* Giallo */
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+    </style>
+</head>
+<body>
+
+    <main>
+        <div id="menu-view">
+            <h1>Risolutore di Esercizi di Fisica</h1>
+            <ul id="main-menu">
+                <div class="category-title">CINEMATICA</div>
+                <li data-target="mrua">1. Moto Rettilineo Uniformemente Accelerato (MRUA)</li>
+                <li data-target="free-fall">2. Caduta Libera / Lancio Verticale</li>
+                <li data-target="projectile">3. Moto del Proiettile (Parabolico)</li>
+                <li data-target="horizontal-launch">4. Lancio Orizzontale</li>
+                <li data-target="circular-motion">5. Moto Circolare Uniforme</li>
+                <li data-target="harmonic-motion">6. Moto Armonico Semplice</li>
+                <li data-target="simple-pendulum">7. Pendolo Semplice</li>
+                
+                <div class="category-title">DINAMICA</div>
+                <li data-target="newton-laws">8. Leggi di Newton (F=ma)</li>
+                <li data-target="inclined-plane">9. Forze su Piano Inclinato</li>
+                <li data-target="equilibrium">10. Equilibrio di un Punto Materiale</li>
+                <li data-target="momentum-impulse">11. Quantità di Moto e Impulso</li>
+
+                <div class="category-title">LAVORO ED ENERGIA</div>
+                <li data-target="work-energy">12. Lavoro, Potenza ed Energia</li>
+
+                <div class="category-title">SISTEMI DI PARTICELLE E URTI</div>
+                <li data-target="center-of-mass">13. Moto del Centro di Massa</li>
+                <li data-target="collisions">14. Urti (Elastici e Anelastici)</li>
+
+                <div class="category-title">MOTI RELATIVI</div>
+                <li data-target="galilean-transformations">15. Trasformazioni di Galileo</li>
+            </ul>
+        </div>
+
+        <section id="mrua" class="solver-section">
+            <h2>Moto Rettilineo Uniformemente Accelerato (MRUA)</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Il MRUA descrive il moto di un oggetto che si muove in linea retta con un'accelerazione costante.</p>
+                    <p><b>Formule Chiave:</b></p>
+                    <ul>
+                        <li>Legge della velocità: <code>v = v₀ + a · t</code></li>
+                        <li>Legge oraria: <code>s = s₀ + v₀ · t + ½ a · t²</code></li>
+                        <li>Relazione senza tempo: <code>v² = v₀² + 2a(s - s₀)</code></li>
+                    </ul>
+                    <p>Inserisci i valori che conosci (almeno tre). Lascia vuoti i campi sconosciuti.</p>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="mrua_s">Spazio finale (s, m)</label><input type="number" id="mrua_s" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="mrua_s0">Spazio iniziale (s₀, m)</label><input type="number" id="mrua_s0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="mrua_v">Velocità finale (v, m/s)</label><input type="number" id="mrua_v" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="mrua_v0">Velocità iniziale (v₀, m/s)</label><input type="number" id="mrua_v0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="mrua_a">Accelerazione (a, m/s²)</label><input type="number" id="mrua_a" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="mrua_t">Tempo (t, s)</label><input type="number" id="mrua_t" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateMRUA()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="mrua_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="free-fall" class="solver-section">
+            <h2>Caduta Libera / Lancio Verticale</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                     <p>Un caso particolare di MRUA con accelerazione costante <code>a = -g = -9.81 m/s²</code> (asse Y verso l'alto).</p>
+                    <p><b>Formule Chiave (applicate all'asse y):</b></p>
+                    <ul>
+                        <li><code>v = v₀ - g · t</code></li>
+                        <li><code>y = y₀ + v₀ · t - ½ g · t²</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="ff_y">Altezza finale (y, m)</label><input type="number" id="ff_y" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="ff_y0">Altezza iniziale (y₀, m)</label><input type="number" id="ff_y0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="ff_v">Velocità finale (v, m/s)</label><input type="number" id="ff_v" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="ff_v0">Velocità iniziale (v₀, m/s)</label><input type="number" id="ff_v0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="ff_t">Tempo (t, s)</label><input type="number" id="ff_t" placeholder="sconosciuto"></div>
+            </div>
+             <div class="button-group">
+                <button onclick="calculateFreeFall()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="ff_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="projectile" class="solver-section">
+            <h2>Moto del Proiettile (Parabolico)</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Il moto viene scomposto in un Moto Rettilineo Uniforme sull'asse X e un MRUA (caduta libera) sull'asse Y.</p>
+                    <p><b>Componenti iniziali:</b></p>
+                    <ul>
+                        <li><code>v₀ₓ = v₀ · cos(θ)</code></li>
+                        <li><code>v₀ᵧ = v₀ · sin(θ)</code></li>
+                    </ul>
+                    <p><b>Leggi del moto:</b></p>
+                    <ul>
+                        <li>Asse X: <code>x = v₀ₓ · t</code></li>
+                        <li>Asse Y: <code>y = y₀ + v₀ᵧ · t - ½ g · t²</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="p_v0">Velocità iniziale (v₀, m/s)</label><input type="number" id="p_v0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="p_angle">Angolo di lancio (θ, gradi)</label><input type="number" id="p_angle" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="p_t">Tempo (t, s)</label><input type="number" id="p_t" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="p_x">Spostamento orizzontale (x, m)</label><input type="number" id="p_x" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="p_y0">Altezza iniziale (y₀, m)</label><input type="number" id="p_y0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="p_y">Altezza finale (y, m)</label><input type="number" id="p_y" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateProjectileMotion()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="p_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="horizontal-launch" class="solver-section">
+            <h2>Lancio Orizzontale</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Caso speciale del moto del proiettile con angolo di lancio θ = 0.</p>
+                    <ul>
+                        <li>Asse X (MRU): <code>x = v₀ · t</code></li>
+                        <li>Asse Y (Caduta libera): <code>y = y₀ - ½ g · t²</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="hl_v0">Velocità iniziale (v₀, m/s)</label><input type="number" id="hl_v0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hl_t">Tempo di volo (t, s)</label><input type="number" id="hl_t" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hl_x">Gittata (x, m)</label><input type="number" id="hl_x" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hl_y0">Altezza iniziale (y₀, m)</label><input type="number" id="hl_y0" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hl_y">Altezza finale (y, m)</label><input type="number" id="hl_y" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateHorizontalLaunch()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="hl_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="circular-motion" class="solver-section">
+            <h2>Moto Circolare Uniforme</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Descrive un oggetto che si muove su una circonferenza a velocità (modulo) costante.</p>
+                     <p><b>Formule Chiave:</b></p>
+                    <ul>
+                        <li>Velocità tangenziale e angolare: <code>v = ω · r</code></li>
+                        <li>Accelerazione centripeta: <code>a_c = v² / r = ω² · r</code></li>
+                        <li>Periodo (T) e Frequenza (f): <code>T = 1/f</code></li>
+                        <li>Velocità angolare e frequenza: <code>ω = 2π · f</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                 <div class="input-group"><label for="cm_v">Velocità tangenziale (v, m/s)</label><input type="number" id="cm_v" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="cm_r">Raggio (r, m)</label><input type="number" id="cm_r" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="cm_ac">Accelerazione centripeta (a_c, m/s²)</label><input type="number" id="cm_ac" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="cm_T">Periodo (T, s)</label><input type="number" id="cm_T" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="cm_f">Frequenza (f, Hz)</label><input type="number" id="cm_f" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="cm_omega">Velocità angolare (ω, rad/s)</label><input type="number" id="cm_omega" placeholder="sconosciuto"></div>
+            </div>
+             <div class="button-group">
+                <button onclick="calculateCircularMotion()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="cm_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="harmonic-motion" class="solver-section">
+            <h2>Moto Armonico Semplice</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Moto oscillatorio periodico causato da una forza di richiamo proporzionale allo spostamento (es. massa-molla).</p>
+                    <p><b>Formule Chiave:</b></p>
+                    <ul>
+                        <li>Pulsazione per massa-molla: <code>ω = √(k/m)</code></li>
+                        <li>Relazione con periodo/frequenza: <code>ω = 2πf = 2π/T</code></li>
+                        <li>Velocità massima (al centro): <code>vₘₐₓ = A · ω</code></li>
+                        <li>Accelerazione massima (agli estremi): <code>aₘₐₓ = A · ω²</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="hm_T">Periodo (T, s)</label><input type="number" id="hm_T" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_f">Frequenza (f, Hz)</label><input type="number" id="hm_f" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_omega">Pulsazione (ω, rad/s)</label><input type="number" id="hm_omega" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_A">Ampiezza (A, m)</label><input type="number" id="hm_A" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_mass">Massa (m, kg)</label><input type="number" id="hm_mass" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_k">Costante elastica (k, N/m)</label><input type="number" id="hm_k" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_vmax">Velocità massima (vₘₐₓ, m/s)</label><input type="number" id="hm_vmax" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="hm_amax">Accelerazione massima (aₘₐₓ, m/s²)</label><input type="number" id="hm_amax" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateHarmonicMotion()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="hm_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="simple-pendulum" class="solver-section">
+            <h2>Pendolo Semplice</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Per piccole oscillazioni, il moto di un pendolo è armonico e il suo periodo dipende solo dalla lunghezza del filo e dalla gravità.</p>
+                    <p><b>Formula Chiave:</b></p>
+                    <code>T = 2π · √(L/g)</code>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="sp_T">Periodo (T, s)</label><input type="number" id="sp_T" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="sp_L">Lunghezza del filo (L, m)</label><input type="number" id="sp_L" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="sp_g">Accelerazione di gravità (g, m/s²)</label><input type="number" id="sp_g" value="9.81"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateSimplePendulum()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="sp_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="newton-laws" class="solver-section">
+            <h2>Leggi di Newton (F=ma)</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>La seconda legge di Newton afferma che la forza netta su un corpo è il prodotto della sua massa per la sua accelerazione.</p>
+                    <p><b>Formula Chiave:</b></p>
+                    <code>Fₙₑₜₜₐ = m · a</code>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="nl_F">Forza Risultante (F, N)</label><input type="number" id="nl_F" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="nl_m">Massa (m, kg)</label><input type="number" id="nl_m" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="nl_a">Accelerazione (a, m/s²)</label><input type="number" id="nl_a" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateNewtonLaws()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="nl_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="inclined-plane" class="solver-section">
+            <h2>Forze su Piano Inclinato</h2>
+             <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Si scompone la forza peso (P = mg) nelle sue componenti parallela e perpendicolare al piano.</p>
+                    <ul>
+                        <li>Componente Parallela: <code>P∥ = mg · sin(θ)</code> (tira il corpo giù)</li>
+                        <li>Componente Perpendicolare: <code>P⊥ = mg · cos(θ)</code> (preme sul piano)</li>
+                        <li>Reazione Normale: <code>N = P⊥</code></li>
+                        <li>Forza d'Attrito: <code>Fa = μ · N</code></li>
+                        <li>Forza Netta (lungo il piano): <code>Fₙₑₜₜₐ = P∥ - Fa = ma</code> (considerando solo queste forze)</li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                 <div class="input-group"><label for="ip_angle">Angolo del piano (θ, gradi)</label><input type="number" id="ip_angle" placeholder="es. 30"></div>
+                 <div class="input-group"><label for="ip_m">Massa del corpo (m, kg)</label><input type="number" id="ip_m" placeholder="es. 10"></div>
+                 <div class="input-group"><label for="ip_a">Accelerazione (a, m/s²)</label><input type="number" id="ip_a" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="ip_F_app">Forza parallela applicata (Fₐₚₚ, N)</label><input type="number" id="ip_F_app" placeholder="0 se assente"></div>
+                 <div class="input-group"><label for="ip_mu_s">Coeff. attrito statico (μₛ)</label><input type="number" id="ip_mu_s" placeholder="0 se liscio"></div>
+                 <div class="input-group"><label for="ip_mu_d">Coeff. attrito dinamico (μₖ)</label><input type="number" id="ip_mu_d" placeholder="0 se liscio"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateInclinedPlane()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="ip_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="equilibrium" class="solver-section">
+            <h2>Equilibrio di un Punto Materiale</h2>
+             <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Un corpo è in equilibrio quando la somma vettoriale di tutte le forze che agiscono su di esso è zero.</p>
+                    <p><code>ΣF⃗ = 0  =>  ΣFₓ = 0, ΣFᵧ = 0</code></p>
+                    <p>Questo calcolatore trova la forza F₃ necessaria per bilanciare altre due forze F₁ e F₂: <code>F₃ = -(F₁ + F₂)</code>.</p>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="eq_f1x">Forza 1, componente x (F₁ₓ, N)</label><input type="number" id="eq_f1x"></div>
+                <div class="input-group"><label for="eq_f1y">Forza 1, componente y (F₁ᵧ, N)</label><input type="number" id="eq_f1y"></div>
+                <div class="input-group"><label for="eq_f2x">Forza 2, componente x (F₂ₓ, N)</label><input type="number" id="eq_f2x"></div>
+                <div class="input-group"><label for="eq_f2y">Forza 2, componente y (F₂ᵧ, N)</label><input type="number" id="eq_f2y"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateEquilibrium()">Calcola Forza Equilibrante</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="eq_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="momentum-impulse" class="solver-section">
+            <h2>Quantità di Moto e Impulso</h2>
+             <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Concetti alternativi per formulare la dinamica, utili per urti e forze impulsive.</p>
+                    <ul>
+                        <li>Quantità di Moto: <code>p⃗ = m · v⃗</code></li>
+                        <li>Impulso: <code>I⃗ = F⃗ · Δt</code></li>
+                        <li>Teorema dell'Impulso: L'impulso è uguale alla variazione della quantità di moto. <code>I⃗ = Δp⃗</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                 <div class="input-group"><label for="mi_p">Quantità di moto (p o Δp, kg·m/s)</label><input type="number" id="mi_p" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="mi_m">Massa (m, kg)</label><input type="number" id="mi_m" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="mi_v">Velocità (v o Δv, m/s)</label><input type="number" id="mi_v" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="mi_I">Impulso (I, N·s)</label><input type="number" id="mi_I" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="mi_F">Forza (F, N)</label><input type="number" id="mi_F" placeholder="sconosciuto"></div>
+                 <div class="input-group"><label for="mi_delta_t">Intervallo di tempo (Δt, s)</label><input type="number" id="mi_delta_t" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateMomentumImpulse()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="mi_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="work-energy" class="solver-section">
+            <h2>Lavoro, Potenza ed Energia</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Descrivono come le forze modificano lo stato di moto di un sistema.</p>
+                     <ul>
+                        <li>Lavoro: <code>W = F · d · cos(θ)</code></li>
+                        <li>Energia Cinetica: <code>K = ½mv²</code></li>
+                        <li>Energia Potenziale Gravitazionale: <code>U = mgh</code></li>
+                        <li>Teorema Lavoro-Energia: <code>Wₙₑₜ = ΔK = Kƒ - Kᵢ</code></li>
+                        <li>Conservazione Energia Meccanica: <code>Eᵢ = Eƒ  =>  Kᵢ + Uᵢ = Kƒ + Uƒ</code> (se agiscono solo forze conservative)</li>
+                        <li>Potenza: <code>P = W / t</code></li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="we_work">Lavoro (W, J)</label><input type="number" id="we_work" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_power">Potenza (P, W)</label><input type="number" id="we_power" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_force">Forza (F, N)</label><input type="number" id="we_force" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_displacement">Spostamento (d, m)</label><input type="number" id="we_displacement" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_angle">Angolo forza-spostamento (θ, gradi)</label><input type="number" id="we_angle" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_time">Tempo (t, s)</label><input type="number" id="we_time" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_mass">Massa (m, kg)</label><input type="number" id="we_mass" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_v_initial">Velocità iniziale (vᵢ, m/s)</label><input type="number" id="we_v_initial" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_v_final">Velocità finale (vƒ, m/s)</label><input type="number" id="we_v_final" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_h_initial">Altezza iniziale (hᵢ, m)</label><input type="number" id="we_h_initial" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="we_h_final">Altezza finale (hƒ, m)</label><input type="number" id="we_h_final" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateWorkEnergy()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="we_results" class="results" style="display:none;"></div>
+        </section>
+        
+        <section id="center-of-mass" class="solver-section">
+            <h2>Moto del Centro di Massa</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Il centro di massa è una media pesata delle posizioni delle particelle di un sistema.</p>
+                    <p><b>Formula (per due particelle in 1D):</b></p>
+                    <code>x_cm = (m₁x₁ + m₂x₂) / (m₁ + m₂)</code>
+                </div>
+            </details>
+            <div class="form-grid">
+                 <div class="input-group"><label for="com_m1">Massa 1 (m₁, kg)</label><input type="number" id="com_m1"></div>
+                 <div class="input-group"><label for="com_x1">Posizione 1 (x₁, m)</label><input type="number" id="com_x1"></div>
+                 <div class="input-group"><label for="com_m2">Massa 2 (m₂, kg)</label><input type="number" id="com_m2"></div>
+                 <div class="input-group"><label for="com_x2">Posizione 2 (x₂, m)</label><input type="number" id="com_x2"></div>
+                 <div class="input-group"><label for="com_x_cm">Posizione Centro di Massa (x_cm, m)</label><input type="number" id="com_x_cm" placeholder="sconosciuto"></div>
+            </div>
+             <div class="button-group">
+                <button onclick="calculateCenterOfMass()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="com_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="collisions" class="solver-section">
+            <h2>Urti (Elastici e Anelastici)</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>In ogni urto isolato, la quantità di moto totale si conserva: <code>m₁v₁ᵢ + m₂v₂ᵢ = m₁v₁ƒ + m₂v₂ƒ</code>.</p>
+                    <ul>
+                        <li><b>Urto Completamente Anelastico:</b> I corpi rimangono uniti dopo l'urto (<code>v₁ƒ = v₂ƒ = vƒ</code>). L'energia cinetica NON si conserva.</li>
+                        <li><b>Urto Elastico:</b> Si conserva anche l'energia cinetica totale.</li>
+                    </ul>
+                </div>
+            </details>
+            <div class="input-group">
+                <label for="coll_type">Tipo di urto</label>
+                <select id="coll_type">
+                    <option value="inelastic">Anelastico</option>
+                    <option value="elastic">Elastico</option>
+                </select>
+            </div>
+            <div class="form-grid">
+                <div class="input-group"><label for="coll_m1">Massa 1 (m₁, kg)</label><input type="number" id="coll_m1"></div>
+                <div class="input-group"><label for="coll_v1i">Velocità iniziale 1 (v₁ᵢ, m/s)</label><input type="number" id="coll_v1i"></div>
+                <div class="input-group"><label for="coll_m2">Massa 2 (m₂, kg)</label><input type="number" id="coll_m2"></div>
+                <div class="input-group"><label for="coll_v2i">Velocità iniziale 2 (v₂ᵢ, m/s)</label><input type="number" id="coll_v2i"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateCollision()">Calcola Velocità Finali</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="coll_results" class="results" style="display:none;"></div>
+        </section>
+
+        <section id="galilean-transformations" class="solver-section">
+            <h2>Trasformazioni di Galileo</h2>
+            <details>
+                <summary>Mostra/Nascondi Spiegazione</summary>
+                <div class="explanation-content">
+                    <p>Descrivono come cambiano le misure di posizione e velocità tra due sistemi di riferimento inerziali (S e S'), con S' che si muove a velocità V rispetto a S.</p>
+                     <ul>
+                        <li>Trasformazione delle posizioni: <code>x' = x - V · t</code></li>
+                        <li>Trasformazione delle velocità: <code>u' = u - V</code> (u è la velocità di un oggetto in S)</li>
+                    </ul>
+                </div>
+            </details>
+            <div class="form-grid">
+                <div class="input-group"><label for="gt_x">Posizione in S (x, m)</label><input type="number" id="gt_x" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="gt_xp">Posizione in S' (x', m)</label><input type="number" id="gt_xp" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="gt_v_rel">Velocità di S' rispetto a S (V, m/s)</label><input type="number" id="gt_v_rel"></div>
+                <div class="input-group"><label for="gt_t">Tempo (t, s)</label><input type="number" id="gt_t"></div>
+                <div class="input-group"><label for="gt_u">Velocità oggetto in S (u, m/s)</label><input type="number" id="gt_u" placeholder="sconosciuto"></div>
+                <div class="input-group"><label for="gt_up">Velocità oggetto in S' (u', m/s)</label><input type="number" id="gt_up" placeholder="sconosciuto"></div>
+            </div>
+            <div class="button-group">
+                <button onclick="calculateGalilean()">Calcola</button>
+                <button class="back-button">Torna al Menu</button>
+            </div>
+            <div id="gt_results" class="results" style="display:none;"></div>
+        </section>
+
+    </main>
+
+    <script>
+        // --- COSTANTI GLOBALI ---
+        const GRAVITY = 9.81;
+        const PI = Math.PI;
+        const MAX_ITERATIONS = 10;
+
+        // --- GESTIONE INTERFACCIA UTENTE ---
+        const menuView = document.getElementById('menu-view');
+        const solverSections = document.querySelectorAll('.solver-section');
+        
+        document.getElementById('main-menu').addEventListener('click', (e) => {
+            if (e.target.tagName === 'LI') {
+                const targetId = e.target.dataset.target;
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    menuView.style.display = 'none';
+                    solverSections.forEach(s => s.style.display = 'none');
+                    targetSection.style.display = 'block';
+                }
+            }
+        });
+
+        document.querySelectorAll('.back-button').forEach(button => {
+            button.addEventListener('click', () => {
+                solverSections.forEach(s => s.style.display = 'none');
+                menuView.style.display = 'block';
+            });
+        });
+        
+        // --- FUNZIONI DI UTILITÀ ---
+        function getValue(id) {
+            return parseFloat(document.getElementById(id).value);
+        }
+
+        function formatResult(value, unit) {
+            if (isNaN(value)) {
+                return `sconosciuto`;
+            }
+            // Evita notazione esponenziale per numeri molto piccoli ma non nulli
+            if (Math.abs(value) < 1e-4 && Math.abs(value) > 0) {
+                 return `${value.toExponential(4)} ${unit}`;
+            }
+            return `${value.toFixed(4)} ${unit}`;
+        }
+
+        // --- FUNZIONI DI CALCOLO ---
+
+        // 1. MRUA
+        function calculateMRUA() {
+            let s = getValue('mrua_s'), s0 = getValue('mrua_s0'), v = getValue('mrua_v'), v0 = getValue('mrua_v0'), a = getValue('mrua_a'), t = getValue('mrua_t');
+            
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(v) && !isNaN(v0) && !isNaN(a) && !isNaN(t)) { v = v0 + a * t; madeProgress = true; }
+                if (isNaN(v0) && !isNaN(v) && !isNaN(a) && !isNaN(t)) { v0 = v - a * t; madeProgress = true; }
+                if (isNaN(a) && !isNaN(v) && !isNaN(v0) && !isNaN(t) && t !== 0) { a = (v - v0) / t; madeProgress = true; }
+                if (isNaN(t) && !isNaN(v) && !isNaN(v0) && !isNaN(a) && a !== 0) { t = (v - v0) / a; madeProgress = true; }
+                if (isNaN(s) && !isNaN(s0) && !isNaN(v0) && !isNaN(t) && !isNaN(a)) { s = s0 + (v0 * t) + (0.5 * a * t * t); madeProgress = true; }
+                if (isNaN(s0) && !isNaN(s) && !isNaN(v0) && !isNaN(t) && !isNaN(a)) { s0 = s - (v0 * t) - (0.5 * a * t * t); madeProgress = true; }
+                if (isNaN(v0) && !isNaN(s) && !isNaN(s0) && !isNaN(t) && !isNaN(a) && t !== 0) { v0 = (s - s0 - (0.5 * a * t * t)) / t; madeProgress = true; }
+                if (isNaN(a) && !isNaN(s) && !isNaN(s0) && !isNaN(v0) && !isNaN(t) && (t * t) !== 0) { a = 2 * (s - s0 - v0 * t) / (t * t); madeProgress = true; }
+                if (isNaN(v) && !isNaN(v0) && !isNaN(a) && !isNaN(s) && !isNaN(s0)) { let v_squared = v0 * v0 + 2 * a * (s - s0); if(v_squared >= 0) { v = Math.sqrt(v_squared); madeProgress = true; } }
+                if (isNaN(s) && !isNaN(v) && !isNaN(v0) && !isNaN(a) && !isNaN(s0) && a !== 0) { s = s0 + (v * v - v0 * v0) / (2 * a); madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('mrua_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Spazio finale (s): ${formatResult(s, 'm')}<br>
+                Spazio iniziale (s₀): ${formatResult(s0, 'm')}<br>
+                Velocità finale (v): ${formatResult(v, 'm/s')}<br>
+                Velocità iniziale (v₀): ${formatResult(v0, 'm/s')}<br>
+                Accelerazione (a): ${formatResult(a, 'm/s²')}<br>
+                Tempo (t): ${formatResult(t, 's')}
+            `;
+        }
+
+        // 2. Caduta Libera
+        function calculateFreeFall() {
+            let y = getValue('ff_y'), y0 = getValue('ff_y0'), v = getValue('ff_v'), v0 = getValue('ff_v0'), t = getValue('ff_t');
+            const a = -GRAVITY;
+
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(v) && !isNaN(v0) && !isNaN(t)) { v = v0 + a * t; madeProgress = true; }
+                if (isNaN(v0) && !isNaN(v) && !isNaN(t)) { v0 = v - a * t; madeProgress = true; }
+                if (isNaN(t) && !isNaN(v) && !isNaN(v0) && a !== 0) { let temp_t = (v - v0) / a; if (temp_t >= 0) { t = temp_t; madeProgress = true; } }
+                if (isNaN(y) && !isNaN(y0) && !isNaN(v0) && !isNaN(t)) { y = y0 + v0 * t + 0.5 * a * t * t; madeProgress = true; }
+                if (isNaN(y0) && !isNaN(y) && !isNaN(v0) && !isNaN(t)) { y0 = y - v0 * t - 0.5 * a * t * t; madeProgress = true; }
+                if (isNaN(t) && !isNaN(y) && !isNaN(y0) && !isNaN(v0)) { let qa = 0.5 * a, qb = v0, qc = y0 - y; let disc = qb*qb - 4*qa*qc; if(disc >= 0){ let t1 = (-qb + Math.sqrt(disc))/(2*qa), t2 = (-qb - Math.sqrt(disc))/(2*qa); if(t1 >= 0 && (t2 < 0 || t1 < t2)) {t = t1; madeProgress=true;} else if(t2 >= 0) {t = t2; madeProgress=true;}} }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('ff_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Altezza finale (y): ${formatResult(y, 'm')}<br>
+                Altezza iniziale (y₀): ${formatResult(y0, 'm')}<br>
+                Velocità finale (v): ${formatResult(v, 'm/s')}<br>
+                Velocità iniziale (v₀): ${formatResult(v0, 'm/s')}<br>
+                Tempo (t): ${formatResult(t, 's')}
+            `;
+        }
+        
+        // 3. Moto del Proiettile
+        function calculateProjectileMotion() {
+            let v0 = getValue('p_v0'), angle_deg = getValue('p_angle'), t = getValue('p_t'), x = getValue('p_x'), y0 = getValue('p_y0'), y = getValue('p_y');
+            let v0x = NaN, v0y = NaN;
+
+            if (!isNaN(v0) && !isNaN(angle_deg)) {
+                let angle_rad = angle_deg * PI / 180.0;
+                v0x = v0 * Math.cos(angle_rad);
+                v0y = v0 * Math.sin(angle_rad);
+            }
+
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(v0x) || isNaN(v0y)) {
+                    if (!isNaN(v0) && !isNaN(angle_deg)) {
+                        let angle_rad = angle_deg * PI / 180.0;
+                        v0x = v0 * Math.cos(angle_rad);
+                        v0y = v0 * Math.sin(angle_rad);
+                        madeProgress = true;
+                    }
+                }
+                if (isNaN(t) && !isNaN(x) && !isNaN(v0x) && v0x !== 0) { let temp_t = x / v0x; if (temp_t >= 0) { t = temp_t; madeProgress = true; } }
+                if (isNaN(x) && !isNaN(v0x) && !isNaN(t)) { x = v0x * t; madeProgress = true; }
+                if (isNaN(v0x) && !isNaN(x) && !isNaN(t) && t !== 0) { v0x = x / t; madeProgress = true; }
+                if (isNaN(y) && !isNaN(y0) && !isNaN(v0y) && !isNaN(t)) { y = y0 + v0y * t - 0.5 * GRAVITY * t * t; madeProgress = true; }
+                if (isNaN(t) && !isNaN(y) && !isNaN(y0) && !isNaN(v0y)) { let a_q = -0.5*GRAVITY, b_q = v0y, c_q = y0-y; let disc = b_q*b_q-4*a_q*c_q; if(disc >= 0){ let t1=(-b_q+Math.sqrt(disc))/(2*a_q), t2=(-b_q-Math.sqrt(disc))/(2*a_q); if(t1>=0 && (t2<0||t1<t2)) {t=t1; madeProgress=true;} else if(t2>=0) {t=t2; madeProgress=true;}} }
+                if (isNaN(v0) && !isNaN(v0x) && !isNaN(v0y)) { v0 = Math.sqrt(v0x*v0x + v0y*v0y); madeProgress = true; }
+                if (isNaN(angle_deg) && !isNaN(v0x) && !isNaN(v0y) && v0x !== 0) { angle_deg = Math.atan(v0y / v0x) * 180.0 / PI; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('p_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Velocità iniziale (v₀): ${formatResult(v0, 'm/s')}<br>
+                Angolo di lancio (θ): ${formatResult(angle_deg, 'gradi')}<br>
+                Tempo (t): ${formatResult(t, 's')}<br>
+                Gittata (x): ${formatResult(x, 'm')}<br>
+                Altezza iniziale (y₀): ${formatResult(y0, 'm')}<br>
+                Altezza finale (y): ${formatResult(y, 'm')}
+            `;
+        }
+
+        // 4. Lancio Orizzontale
+        function calculateHorizontalLaunch() {
+            let v0 = getValue('hl_v0'), t = getValue('hl_t'), x = getValue('hl_x'), y0 = getValue('hl_y0'), y = getValue('hl_y');
+            
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(t) && !isNaN(y0) && !isNaN(y)) { let h = y0 - y; if (h >= 0) { t = Math.sqrt(2 * h / GRAVITY); madeProgress = true; } }
+                if (isNaN(v0) && !isNaN(x) && !isNaN(t) && t !== 0) { v0 = x / t; madeProgress = true; }
+                if (isNaN(x) && !isNaN(v0) && !isNaN(t)) { x = v0 * t; madeProgress = true; }
+                if (isNaN(y0) && !isNaN(y) && !isNaN(t)) { y0 = y + 0.5 * GRAVITY * t * t; madeProgress = true; }
+                if (isNaN(y) && !isNaN(y0) && !isNaN(t)) { y = y0 - 0.5 * GRAVITY * t * t; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('hl_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Velocità iniziale (v₀): ${formatResult(v0, 'm/s')}<br>
+                Tempo di volo (t): ${formatResult(t, 's')}<br>
+                Gittata (x): ${formatResult(x, 'm')}<br>
+                Altezza iniziale (y₀): ${formatResult(y0, 'm')}<br>
+                Altezza finale (y): ${formatResult(y, 'm')}
+            `;
+        }
+        
+        // 5. Moto Circolare
+        function calculateCircularMotion() {
+            let v = getValue('cm_v'), r = getValue('cm_r'), ac = getValue('cm_ac'), T = getValue('cm_T'), f = getValue('cm_f'), omega = getValue('cm_omega');
+
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(f) && !isNaN(T) && T !== 0) { f = 1.0 / T; madeProgress = true; }
+                if (isNaN(T) && !isNaN(f) && f !== 0) { T = 1.0 / f; madeProgress = true; }
+                if (isNaN(omega) && !isNaN(f)) { omega = 2 * PI * f; madeProgress = true; }
+                if (isNaN(f) && !isNaN(omega)) { f = omega / (2 * PI); madeProgress = true; }
+                if (isNaN(v) && !isNaN(omega) && !isNaN(r)) { v = omega * r; madeProgress = true; }
+                if (isNaN(omega) && !isNaN(v) && !isNaN(r) && r !== 0) { omega = v / r; madeProgress = true; }
+                if (isNaN(r) && !isNaN(v) && !isNaN(omega) && omega !== 0) { r = v / omega; madeProgress = true; }
+                if (isNaN(v) && !isNaN(r) && !isNaN(T) && T !== 0) { v = 2 * PI * r / T; madeProgress = true; }
+                if (isNaN(ac) && !isNaN(v) && !isNaN(r) && r !== 0) { ac = v * v / r; madeProgress = true; }
+                if (isNaN(v) && !isNaN(ac) && !isNaN(r) && ac*r >= 0) { v = Math.sqrt(ac * r); madeProgress = true; }
+                if (isNaN(r) && !isNaN(v) && !isNaN(ac) && ac !== 0) { r = v * v / ac; madeProgress = true; }
+                if (isNaN(ac) && !isNaN(omega) && !isNaN(r)) { ac = omega * omega * r; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('cm_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Velocità tangenziale (v): ${formatResult(v, 'm/s')}<br>
+                Velocità angolare (ω): ${formatResult(omega, 'rad/s')}<br>
+                Raggio (r): ${formatResult(r, 'm')}<br>
+                Accelerazione centripeta (a_c): ${formatResult(ac, 'm/s²')}<br>
+                Periodo (T): ${formatResult(T, 's')}<br>
+                Frequenza (f): ${formatResult(f, 'Hz')}
+            `;
+        }
+        
+        // 6. Moto Armonico
+        function calculateHarmonicMotion() {
+            let T = getValue('hm_T'), f = getValue('hm_f'), omega = getValue('hm_omega'), A = getValue('hm_A'),
+                mass = getValue('hm_mass'), k = getValue('hm_k'), vmax = getValue('hm_vmax'), amax = getValue('hm_amax');
+
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(f) && !isNaN(T) && T !== 0) { f = 1.0 / T; madeProgress = true; }
+                if (isNaN(T) && !isNaN(f) && f !== 0) { T = 1.0 / f; madeProgress = true; }
+                if (isNaN(omega) && !isNaN(f)) { omega = 2 * PI * f; madeProgress = true; }
+                if (isNaN(f) && !isNaN(omega)) { f = omega / (2 * PI); madeProgress = true; }
+                if (isNaN(omega) && !isNaN(k) && !isNaN(mass) && mass > 0) { omega = Math.sqrt(k / mass); madeProgress = true; }
+                if (isNaN(k) && !isNaN(omega) && !isNaN(mass)) { k = mass * omega * omega; madeProgress = true; }
+                if (isNaN(mass) && !isNaN(omega) && !isNaN(k) && omega !== 0) { mass = k / (omega * omega); madeProgress = true; }
+                if (isNaN(vmax) && !isNaN(omega) && !isNaN(A)) { vmax = omega * A; madeProgress = true; }
+                if (isNaN(A) && !isNaN(vmax) && !isNaN(omega) && omega !== 0) { A = vmax / omega; madeProgress = true; }
+                if (isNaN(amax) && !isNaN(omega) && !isNaN(A)) { amax = omega * omega * A; madeProgress = true; }
+                if (isNaN(A) && !isNaN(amax) && !isNaN(omega) && omega !== 0) { A = amax / (omega*omega); madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('hm_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Periodo (T): ${formatResult(T, 's')}<br>
+                Frequenza (f): ${formatResult(f, 'Hz')}<br>
+                Pulsazione (ω): ${formatResult(omega, 'rad/s')}<br>
+                Ampiezza (A): ${formatResult(A, 'm')}<br>
+                Velocità massima (vₘₐₓ): ${formatResult(vmax, 'm/s')}<br>
+                Accelerazione massima (aₘₐₓ): ${formatResult(amax, 'm/s²')}<br>
+                Costante elastica (k): ${formatResult(k, 'N/m')}<br>
+                Massa (m): ${formatResult(mass, 'kg')}
+            `;
+        }
+
+        // 7. Pendolo Semplice
+        function calculateSimplePendulum() {
+            let T = getValue('sp_T'), L = getValue('sp_L'), g = getValue('sp_g');
+            if (isNaN(g)) g = GRAVITY;
+
+            for (let i = 0; i < 5; i++) {
+                let madeProgress = false;
+                if (isNaN(T) && !isNaN(L) && !isNaN(g) && L >= 0 && g > 0) { T = 2 * PI * Math.sqrt(L / g); madeProgress = true; }
+                if (isNaN(L) && !isNaN(T) && !isNaN(g) && T > 0) { L = g * (T * T) / (4 * PI * PI); madeProgress = true; }
+                if (isNaN(g) && !isNaN(L) && !isNaN(T) && T > 0) { g = L * (4 * PI * PI) / (T * T); madeProgress = true; }
+                if (!madeProgress) break;
+            }
+            
+            const resultsDiv = document.getElementById('sp_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Periodo (T): ${formatResult(T, 's')}<br>
+                Lunghezza del filo (L): ${formatResult(L, 'm')}<br>
+                Accelerazione di gravità (g): ${formatResult(g, 'm/s²')}
+            `;
+        }
+        
+        // 8. Leggi di Newton
+        function calculateNewtonLaws() {
+            let F = getValue('nl_F'), m = getValue('nl_m'), a = getValue('nl_a');
+
+            for (let i = 0; i < 5; i++) {
+                let madeProgress = false;
+                if (isNaN(F) && !isNaN(m) && !isNaN(a)) { F = m * a; madeProgress = true; }
+                if (isNaN(m) && !isNaN(F) && !isNaN(a) && a !== 0) { m = F / a; madeProgress = true; }
+                if (isNaN(a) && !isNaN(F) && !isNaN(m) && m !== 0) { a = F / m; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('nl_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Forza Risultante (F): ${formatResult(F, 'N')}<br>
+                Massa (m): ${formatResult(m, 'kg')}<br>
+                Accelerazione (a): ${formatResult(a, 'm/s²')}
+            `;
+        }
+        
+        // 9. Piano Inclinato
+        function calculateInclinedPlane() {
+            let angle_deg = getValue('ip_angle'), m = getValue('ip_m'), a = getValue('ip_a');
+            let F_app = getValue('ip_F_app'), mu_s = getValue('ip_mu_s'), mu_d = getValue('ip_mu_d');
+            if (isNaN(F_app)) F_app = 0;
+
+            let P = NaN, P_par = NaN, P_perp = NaN, N = NaN, Fa_s_max = NaN, Fa_d = NaN, F_netta = NaN;
+            let infoMsg = '';
+
+            if (!isNaN(m)) P = m * GRAVITY;
+            if (!isNaN(P) && !isNaN(angle_deg)) {
+                const angle_rad = angle_deg * PI / 180.0;
+                P_par = P * Math.sin(angle_rad);
+                P_perp = P * Math.cos(angle_rad);
+            }
+            if (!isNaN(P_perp)) N = P_perp;
+            if (!isNaN(mu_s) && !isNaN(N)) Fa_s_max = mu_s * N;
+            if (!isNaN(mu_d) && !isNaN(N)) Fa_d = mu_d * N;
+
+            // Logica principale per accelerazione e stato
+            if (isNaN(a) && !isNaN(m) && m !== 0 && !isNaN(P_par) && !isNaN(F_app)) {
+                const F_motrice_senza_attrito = F_app - P_par; // Positivo se sale, negativo se scende
+
+                if (!isNaN(Fa_s_max)) { // C'è attrito statico
+                    if (Math.abs(F_motrice_senza_attrito) <= Fa_s_max) {
+                        a = 0;
+                        F_netta = 0;
+                        infoMsg = `<div class="info-message">Il corpo rimane fermo (a=0) perché la forza motrice (${F_motrice_senza_attrito.toFixed(2)} N) è minore o uguale all'attrito statico massimo (${Fa_s_max.toFixed(2)} N).</div>`;
+                    }
+                }
+                
+                if (isNaN(a) && !isNaN(Fa_d)) { // Se non è fermo e c'è attrito dinamico
+                    const direzione = Math.sign(F_motrice_senza_attrito) || 1;
+                    F_netta = F_motrice_senza_attrito - (direzione * Fa_d);
+                    a = F_netta / m;
+                    infoMsg = `<div class="info-message">Il corpo si muove. La forza motrice supera l'attrito statico.</div>`;
+                } else if (isNaN(a)) { // Nessun attrito
+                     F_netta = F_motrice_senza_attrito;
+                     a = F_netta / m;
+                }
+            } else if (!isNaN(m) && !isNaN(a)) {
+                F_netta = m * a;
+            }
+
+            const resultsDiv = document.getElementById('ip_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori Calcolati</h3>
+                Forza Peso (P): ${formatResult(P, 'N')}<br>
+                Comp. Parallela Peso (P∥): ${formatResult(P_par, 'N')}<br>
+                Reazione Normale (N): ${formatResult(N, 'N')}<br>
+                Forza Attrito Statico Massima: ${formatResult(Fa_s_max, 'N')}<br>
+                Forza Attrito Dinamico: ${formatResult(Fa_d, 'N')}<br>
+                Forza Netta: ${formatResult(F_netta, 'N')}<br>
+                <hr>
+                <strong>Accelerazione (a): ${formatResult(a, 'm/s²')}</strong>
+                ${infoMsg}
+            `;
+        }
+
+        // 10. Equilibrio
+        function calculateEquilibrium() {
+            const f1x = getValue('eq_f1x'), f1y = getValue('eq_f1y'), f2x = getValue('eq_f2x'), f2y = getValue('eq_f2y');
+            let f3x = NaN, f3y = NaN, f3_mag = NaN, f3_angle = NaN;
+
+            if (!isNaN(f1x) && !isNaN(f2x)) f3x = -(f1x + f2x);
+            if (!isNaN(f1y) && !isNaN(f2y)) f3y = -(f1y + f2y);
+
+            if (!isNaN(f3x) && !isNaN(f3y)) {
+                f3_mag = Math.sqrt(f3x * f3x + f3y * f3y);
+                f3_angle = Math.atan2(f3y, f3x) * 180.0 / PI;
+            }
+
+            const resultsDiv = document.getElementById('eq_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Forza Necessaria per l'Equilibrio (F₃)</h3>
+                Componente x (F₃ₓ): ${formatResult(f3x, 'N')}<br>
+                Componente y (F₃ᵧ): ${formatResult(f3y, 'N')}<br>
+                <hr>
+                <strong>Magnitudine |F₃|: ${formatResult(f3_mag, 'N')}</strong><br>
+                <strong>Angolo di F₃: ${formatResult(f3_angle, 'gradi')}</strong>
+            `;
+        }
+
+        // 11. Quantità di Moto e Impulso
+        function calculateMomentumImpulse() {
+            let p = getValue('mi_p'), m = getValue('mi_m'), v = getValue('mi_v');
+            let I = getValue('mi_I'), F = getValue('mi_F'), delta_t = getValue('mi_delta_t');
+
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(p) && !isNaN(m) && !isNaN(v)) { p = m * v; madeProgress = true; }
+                if (isNaN(m) && !isNaN(p) && !isNaN(v) && v !== 0) { m = p / v; madeProgress = true; }
+                if (isNaN(v) && !isNaN(p) && !isNaN(m) && m !== 0) { v = p / m; madeProgress = true; }
+                if (isNaN(I) && !isNaN(F) && !isNaN(delta_t)) { I = F * delta_t; madeProgress = true; }
+                if (isNaN(F) && !isNaN(I) && !isNaN(delta_t) && delta_t !== 0) { F = I / delta_t; madeProgress = true; }
+                if (isNaN(delta_t) && !isNaN(I) && !isNaN(F) && F !== 0) { delta_t = I / F; madeProgress = true; }
+                if (isNaN(I) && !isNaN(p)) { I = p; madeProgress = true; }
+                if (isNaN(p) && !isNaN(I)) { p = I; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+            const resultsDiv = document.getElementById('mi_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Quantità di moto (p o Δp): ${formatResult(p, 'kg·m/s')}<br>
+                Impulso (I): ${formatResult(I, 'N·s')}<br>
+                Massa (m): ${formatResult(m, 'kg')}<br>
+                Velocità (v o Δv): ${formatResult(v, 'm/s')}<br>
+                Forza (F): ${formatResult(F, 'N')}<br>
+                Intervallo di tempo (Δt): ${formatResult(delta_t, 's')}
+            `;
+        }
+        
+        // 12. Lavoro ed Energia
+        function calculateWorkEnergy() {
+            let work = getValue('we_work'), power = getValue('we_power'), force = getValue('we_force'),
+                displacement = getValue('we_displacement'), angle_deg = getValue('we_angle'),
+                time = getValue('we_time'), mass = getValue('we_mass'), v_initial = getValue('we_v_initial'),
+                v_final = getValue('we_v_final'), h_initial = getValue('we_h_initial'), h_final = getValue('we_h_final');
+
+            let ki = NaN, kf = NaN, ugi = NaN, ugf = NaN, em_initial = NaN, em_final = NaN;
+            
+            for (let i = 0; i < MAX_ITERATIONS; i++) {
+                let madeProgress = false;
+                if (isNaN(work) && !isNaN(force) && !isNaN(displacement) && !isNaN(angle_deg)) { work = force * displacement * Math.cos(angle_deg * PI / 180.0); madeProgress = true; }
+                if (isNaN(force) && !isNaN(work) && !isNaN(displacement) && !isNaN(angle_deg) && (displacement * Math.cos(angle_deg * PI / 180.0)) !== 0) { force = work / (displacement * Math.cos(angle_deg * PI / 180.0)); madeProgress = true; }
+                if (isNaN(power) && !isNaN(work) && !isNaN(time) && time !== 0) { power = work / time; madeProgress = true; }
+                if (isNaN(work) && !isNaN(power) && !isNaN(time)) { work = power * time; madeProgress = true; }
+                if (isNaN(time) && !isNaN(power) && !isNaN(work) && power !== 0) { time = work / power; madeProgress = true; }
+                if (isNaN(ki) && !isNaN(mass) && !isNaN(v_initial)) { ki = 0.5 * mass * v_initial * v_initial; madeProgress = true; }
+                if (isNaN(kf) && !isNaN(mass) && !isNaN(v_final)) { kf = 0.5 * mass * v_final * v_final; madeProgress = true; }
+                if (isNaN(v_final) && !isNaN(kf) && !isNaN(mass) && mass > 0 && kf >= 0) { v_final = Math.sqrt(2 * kf / mass); madeProgress = true; }
+                if (isNaN(ugi) && !isNaN(mass) && !isNaN(h_initial)) { ugi = mass * GRAVITY * h_initial; madeProgress = true; }
+                if (isNaN(ugf) && !isNaN(mass) && !isNaN(h_final)) { ugf = mass * GRAVITY * h_final; madeProgress = true; }
+                if (isNaN(work) && !isNaN(kf) && !isNaN(ki)) { work = kf - ki; madeProgress = true; }
+                if (isNaN(kf) && !isNaN(work) && !isNaN(ki)) { kf = work + ki; madeProgress = true; }
+                if (isNaN(em_initial) && !isNaN(ki) && !isNaN(ugi)) { em_initial = ki + ugi; madeProgress = true; }
+                if (isNaN(em_final) && !isNaN(kf) && !isNaN(ugf)) { em_final = kf + ugf; madeProgress = true; }
+                if (isNaN(work) && !isNaN(em_final) && !isNaN(em_initial)) { work = em_final - em_initial; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('we_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Lavoro (W): ${formatResult(work, 'J')}<br>
+                Potenza (P): ${formatResult(power, 'W')}<br>
+                Forza (F): ${formatResult(force, 'N')}<br>
+                Velocità finale (vƒ): ${formatResult(v_final, 'm/s')}<br>
+                Energia Cinetica finale (Kƒ): ${formatResult(kf, 'J')}<br>
+                Energia Meccanica finale (Eₘƒ): ${formatResult(em_final, 'J')}
+            `;
+        }
+        
+        // 13. Centro di Massa
+        function calculateCenterOfMass() {
+            let m1 = getValue('com_m1'), x1 = getValue('com_x1'), m2 = getValue('com_m2'), x2 = getValue('com_x2'), x_cm = getValue('com_x_cm');
+
+            for (let i = 0; i < 5; i++) {
+                let madeProgress = false;
+                if (isNaN(x_cm) && !isNaN(m1) && !isNaN(x1) && !isNaN(m2) && !isNaN(x2) && (m1+m2 !== 0)) {
+                    x_cm = (m1 * x1 + m2 * x2) / (m1 + m2); madeProgress = true;
+                }
+                if (isNaN(x1) && !isNaN(x_cm) && !isNaN(m1) && !isNaN(m2) && !isNaN(x2) && m1 !== 0) {
+                    x1 = (x_cm * (m1 + m2) - m2 * x2) / m1; madeProgress = true;
+                }
+                // Si potrebbero aggiungere le formule inverse per x2, m1, m2
+                if (!madeProgress) break;
+            }
+
+            const resultsDiv = document.getElementById('com_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Posizione Centro di Massa (x_cm): ${formatResult(x_cm, 'm')}<br>
+                Posizione 1 (x₁): ${formatResult(x1, 'm')}<br>
+                Posizione 2 (x₂): ${formatResult(x2, 'm')}
+            `;
+        }
+        
+        // 14. Urti
+        function calculateCollision() {
+            const type = document.getElementById('coll_type').value;
+            const m1 = getValue('coll_m1'), v1i = getValue('coll_v1i'), m2 = getValue('coll_m2'), v2i = getValue('coll_v2i');
+            let resultsHtml = '';
+
+            if (isNaN(m1) || isNaN(v1i) || isNaN(m2) || isNaN(v2i)) {
+                 resultsHtml = `<h3 class="results-title" style="color: var(--error-color);">Errore</h3>Per favore, inserisci tutti i valori iniziali.`;
+            } else if (type === 'inelastic') {
+                let vf = NaN;
+                if (m1 + m2 !== 0) {
+                    vf = (m1 * v1i + m2 * v2i) / (m1 + m2);
+                }
+                resultsHtml = `
+                    <h3 class="results-title">Risultato Urto Anelastico</h3>
+                    Velocità finale comune (vƒ): ${formatResult(vf, 'm/s')}
+                `;
+            } else if (type === 'elastic') {
+                let v1f = NaN, v2f = NaN;
+                if (m1 + m2 !== 0) {
+                    v1f = ((m1 - m2) / (m1 + m2)) * v1i + ((2 * m2) / (m1 + m2)) * v2i;
+                    v2f = ((2 * m1) / (m1 + m2)) * v1i + ((m2 - m1) / (m1 + m2)) * v2i;
+                }
+                resultsHtml = `
+                    <h3 class="results-title">Risultato Urto Elastico</h3>
+                    Velocità finale 1 (v₁ƒ): ${formatResult(v1f, 'm/s')}<br>
+                    Velocità finale 2 (v₂ƒ): ${formatResult(v2f, 'm/s')}
+                `;
+            }
+            const resultsDiv = document.getElementById('coll_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = resultsHtml;
+        }
+        
+        // 15. Trasformazioni di Galileo
+        function calculateGalilean() {
+            let x = getValue('gt_x'), xp = getValue('gt_xp'), v_rel = getValue('gt_v_rel'), t = getValue('gt_t');
+            let u = getValue('gt_u'), up = getValue('gt_up');
+
+             for (let i = 0; i < 5; i++) {
+                let madeProgress = false;
+                if (isNaN(xp) && !isNaN(x) && !isNaN(v_rel) && !isNaN(t)) { xp = x - v_rel * t; madeProgress = true; }
+                if (isNaN(x) && !isNaN(xp) && !isNaN(v_rel) && !isNaN(t)) { x = xp + v_rel * t; madeProgress = true; }
+                if (isNaN(up) && !isNaN(u) && !isNaN(v_rel)) { up = u - v_rel; madeProgress = true; }
+                if (isNaN(u) && !isNaN(up) && !isNaN(v_rel)) { u = up + v_rel; madeProgress = true; }
+                if (!madeProgress) break;
+            }
+            
+            const resultsDiv = document.getElementById('gt_results');
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = `
+                <h3 class="results-title">Riepilogo dei Valori</h3>
+                Posizione in S (x): ${formatResult(x, 'm')}<br>
+                Posizione in S' (x'): ${formatResult(xp, 'm')}<br>
+                Velocità in S (u): ${formatResult(u, 'm/s')}<br>
+                Velocità in S' (u'): ${formatResult(up, 'm/s')}
+            `;
+        }
+
+    </script>
+
+</body>
+</html>
